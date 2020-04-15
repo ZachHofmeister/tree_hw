@@ -14,7 +14,7 @@
 
 #include "tree.h"
 #include "utils.h"
-
+#include "queue.h"
 
 //-------------------------------------------------
 tnode* tnode_create(const char* word) {
@@ -127,16 +127,21 @@ void tree_print_postorder(tree* t) {
     printf("\n");
 }
 
-static void tree_printnodes_levelorder(tree* t, tnode* p) {
-    if (p == NULL) { return; }
-    //TODO
+static void tree_printnodes_levelorder(tree* t, queue * q) {
+    tree_printme(t, queue_front(q));
+    if (queue_front(q)->left != NULL) queue_push(q, queue_front(q)->left);
+    if (queue_front(q)->right != NULL) queue_push(q, queue_front(q)->right);
+    queue_pop(q);
+    if (!queue_empty(q)) tree_printnodes_levelorder(t, q);
 }
 
 void tree_print_levelorder(tree* t) {
-    tree_printnodes_levelorder(t, t->root);
+    if (t->root == NULL) return;
+    queue * queue = queue_create();
+    queue_push(queue, t->root);
+    tree_printnodes_levelorder(t, queue);
     printf("\n");
 }
-
 
 void tree_test() {
     tree* t = tree_create();
@@ -205,8 +210,10 @@ int main(int argc, const char* argv[]) {
         t = inputToTree(NULL);
         printf("\n");
     }
-    
+    printf("Tree inorder:\n");
     tree_print(t);
+    printf("Tree levelorder:\n");
+    tree_print_levelorder(t);
     
     return 0;
 }
